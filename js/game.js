@@ -10,6 +10,8 @@ let spaceBar;
 let bullet = [];
 let contBullet = 0;
 let frame = -1;
+let score = 0;
+let scoreText;
 
 /**
  * It prelaods all the assets required in the game.
@@ -49,6 +51,12 @@ function create() {
 
   //map space key status
   spaceBar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+  //Texto Score
+  scoreText = this.add.text(5, 5, "Score: 0", {
+    font: "32px Arial",
+    fill: "#0095DD",
+  });
 }
 
 /**
@@ -125,7 +133,7 @@ function disparar(engine) {
       )
     );
     contBullet++;
-    frame = 20;
+    frame = 12;
   }
 }
 
