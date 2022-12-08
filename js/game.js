@@ -40,7 +40,9 @@ function create() {
   );
   //musica de fondo
   let sonidoFondo = this.sound.add("fondo");
+  sonidoFondo.loop = true;
   sonidoFondo.play();
+
   // disparo
   sonidoDisparo = this.sound.add("disparo");
 
@@ -151,7 +153,7 @@ function disparar(engine) {
         player.y - (player.height / 2) * PLAYER_SCALE,
         5,
         10,
-        0x6666ff
+        0xff9900
       )
     );
     contBullet++;
