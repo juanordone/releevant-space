@@ -12,6 +12,8 @@ let contBullet = 0;
 let frame = -1;
 let score = 0;
 let scoreText;
+let explosion;
+let sonidoDisparo;
 
 /**
  * It prelaods all the assets required in the game.
@@ -20,6 +22,9 @@ function preload() {
   this.load.image("sky", "assets/backgrounds/blue.png");
   this.load.image("player", "assets/characters/player.png");
   this.load.image("enemy", "assets/characters/alien3.png");
+  this.load.image("red", "assets/particle/red.png");
+  this.load.audio("fondo", "assets/sounds/fondo.mp3");
+  this.load.audio("disparo", "assets/sounds/disparo.mp3");
 }
 
 /**
@@ -33,6 +38,11 @@ function create() {
     SCREEN_HEIGHT / 2 - background1.height,
     "sky"
   );
+  //musica de fondo
+  let sonidoFondo = this.sound.add("fondo");
+  sonidoFondo.play();
+  // disparo
+  sonidoDisparo = this.sound.add("disparo");
 
   // playet setup
   player = this.add.image(SCREEN_WIDTH / 2, SCREEN_HEIGHT, "player");
@@ -51,6 +61,17 @@ function create() {
 
   //map space key status
   spaceBar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+  //partiulas
+
+  explosion = this.add.particles("red").createEmitter({
+    scale: { min: 0.5, max: 0 },
+    speed: { min: -100, max: 100 },
+    quantity: 1,
+    frequency: 0.1,
+    lifespan: 100,
+    gravityY: 0,
+    on: false,
+  });
 
   //Texto Score
   scoreText = this.add.text(5, 5, "Score: 0", {
@@ -123,6 +144,7 @@ function moverFondo() {
 
 function disparar(engine) {
   if (spaceBar.isDown) {
+    sonidoDisparo.play();
     bullet.push(
       engine.add.ellipse(
         player.x,
@@ -138,10 +160,41 @@ function disparar(engine) {
 }
 
 function moverBala() {
-  for (let bala of bullet) {
-    bala.setY(bala.y - BULLET_VELOCITY);
-    if (bala.y < 0 - bala.height) {
-      bala.destroy();
+  let index = -1;
+  for (i = 0; i < bullet.length; i++) {
+    bullet[i].setY(bullet[i].y - BULLET_VELOCITY);
+    if (bullet[i].y < 0) {
+      bullet[i].destroy();
+      index = i;
     }
+    colision(bullet[i]);
   }
+  if (index >= 0) {
+    bullet.splice(index, 1);
+  }
+}
+
+function colision(bala) {
+  if (
+    bala.x >= enemy.x - (enemy.width * ENEMY_SCALE) / 2 &&
+    bala.x <= enemy.x + (enemy.width * ENEMY_SCALE) / 2 &&
+    bala.y >= enemy.y - (enemy.height * ENEMY_SCALE) / 2 &&
+    bala.y <= enemy.y + (enemy.height * ENEMY_SCALE) / 2
+  ) {
+    collectEnemy(bala, enemy);
+    explosion.setPosition(enemy.x, enemy.y);
+    explosion.explode();
+    enemy.setX(
+      Math.random() * (SCREEN_WIDTH - enemy.width * ENEMY_SCALE) +
+        (enemy.width / 2) * ENEMY_SCALE
+    );
+  } else {
+    // No collision
+  }
+}
+
+function collectEnemy(bala, enemy) {
+  contador = 24;
+  score += 10;
+  scoreText.setText("Score:" + score);
 }
