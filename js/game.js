@@ -14,6 +14,9 @@ let score = 0;
 let scoreText;
 let explosion;
 let sonidoDisparo;
+let pausa = false;
+let padre;
+
 
 /**
  * It prelaods all the assets required in the game.
@@ -25,6 +28,9 @@ function preload() {
   this.load.image("red", "assets/particle/red.png");
   this.load.audio("fondo", "assets/sounds/fondo.mp3");
   this.load.audio("disparo", "assets/sounds/disparo.mp3");
+  this.load.image("gameOver", "assets/backgrounds/gameOver.png");
+  this.load.audio("padre", "assets/sounds/padre.mp3");
+
 }
 
 /**
@@ -45,6 +51,12 @@ function create() {
 
   // disparo
   sonidoDisparo = this.sound.add("disparo");
+
+  // Game Over
+  gameOver = this.add.image(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, "gameOver");
+  gameOver.setX(SCREEN_WIDTH + gameOver.width);
+  gameOver.setY(SCREEN_HEIGHT + gameOver.height);
+  padre = this.sound.add("padre");
 
   // playet setup
   player = this.add.image(SCREEN_WIDTH / 2, SCREEN_HEIGHT, "player");
@@ -86,6 +98,10 @@ function create() {
  * Updates each game object of the scene.
  */
 function update() {
+
+  if(pausa){
+    return;
+  }
   this.add.ellipse(
     player.x,
     player.y - (player.height / 2) * PLAYER_SCALE,
@@ -94,6 +110,7 @@ function update() {
   );
   moverPlayer();
   moverFondo();
+  moverEnemy();
   if (frame < 0) {
     disparar(this);
   }
@@ -186,17 +203,38 @@ function colision(bala) {
     collectEnemy(bala, enemy);
     explosion.setPosition(enemy.x, enemy.y);
     explosion.explode();
+    enemy.setY((enemy.height * ENEMY_SCALE) / 2);
     enemy.setX(
       Math.random() * (SCREEN_WIDTH - enemy.width * ENEMY_SCALE) +
         (enemy.width / 2) * ENEMY_SCALE
     );
-  } else {
-    // No collision
-  }
+    bala.destroy();
+  } 
 }
 
-function collectEnemy(bala, enemy) {
+function collectEnemy() {
   contador = 24;
   score += 10;
   scoreText.setText("Score:" + score);
+}
+
+function moverEnemy() {
+  enemy.setY(enemy.y + ENEMY_VELOCITY);
+  if (
+    player.x >= enemy.x - (enemy.width * ENEMY_SCALE) / 2 &&
+    player.x <= enemy.x + (enemy.width * ENEMY_SCALE) / 2 &&
+    player.y >= enemy.y - (enemy.height * ENEMY_SCALE) / 2 &&
+    player.y <= enemy.y + (enemy.height * ENEMY_SCALE) / 2 ||
+    enemy.y >= SCREEN_HEIGHT
+  ){
+    gameOver.setX(SCREEN_WIDTH / 2);
+    gameOver.setY(SCREEN_WIDTH / 2);
+    enemy.destroy();
+    player.destroy();
+    explosion.setPosition(enemy.x, enemy.y);
+    explosion.explode();
+    padre.play()
+    pausa = true;
+    
+  }
 }
