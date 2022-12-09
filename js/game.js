@@ -16,7 +16,7 @@ let explosion;
 let sonidoDisparo;
 let pausa = false;
 let padre;
-
+let sonidoFondo;
 
 /**
  * It prelaods all the assets required in the game.
@@ -30,7 +30,6 @@ function preload() {
   this.load.audio("disparo", "assets/sounds/disparo.mp3");
   this.load.image("gameOver", "assets/backgrounds/gameOver.png");
   this.load.audio("padre", "assets/sounds/padre.mp3");
-
 }
 
 /**
@@ -45,7 +44,7 @@ function create() {
     "sky"
   );
   //musica de fondo
-  let sonidoFondo = this.sound.add("fondo");
+  sonidoFondo = this.sound.add("fondo");
   sonidoFondo.loop = true;
   sonidoFondo.play();
 
@@ -98,8 +97,7 @@ function create() {
  * Updates each game object of the scene.
  */
 function update() {
-
-  if(pausa){
+  if (pausa) {
     return;
   }
   this.add.ellipse(
@@ -209,7 +207,7 @@ function colision(bala) {
         (enemy.width / 2) * ENEMY_SCALE
     );
     bala.destroy();
-  } 
+  }
 }
 
 function collectEnemy() {
@@ -221,20 +219,20 @@ function collectEnemy() {
 function moverEnemy() {
   enemy.setY(enemy.y + ENEMY_VELOCITY);
   if (
-    player.x >= enemy.x - (enemy.width * ENEMY_SCALE) / 2 &&
-    player.x <= enemy.x + (enemy.width * ENEMY_SCALE) / 2 &&
-    player.y >= enemy.y - (enemy.height * ENEMY_SCALE) / 2 &&
-    player.y <= enemy.y + (enemy.height * ENEMY_SCALE) / 2 ||
+    (player.x >= enemy.x - (enemy.width * ENEMY_SCALE) / 2 &&
+      player.x <= enemy.x + (enemy.width * ENEMY_SCALE) / 2 &&
+      player.y >= enemy.y - (enemy.height * ENEMY_SCALE) / 2 &&
+      player.y <= enemy.y + (enemy.height * ENEMY_SCALE) / 2) ||
     enemy.y >= SCREEN_HEIGHT
-  ){
+  ) {
     gameOver.setX(SCREEN_WIDTH / 2);
     gameOver.setY(SCREEN_WIDTH / 2);
     enemy.destroy();
     player.destroy();
     explosion.setPosition(enemy.x, enemy.y);
     explosion.explode();
-    padre.play()
+    sonidoFondo.stop();
+    padre.play();
     pausa = true;
-    
   }
 }
